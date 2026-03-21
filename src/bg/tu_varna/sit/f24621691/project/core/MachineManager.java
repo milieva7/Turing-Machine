@@ -1,6 +1,9 @@
 package bg.tu_varna.sit.f24621691.project.core;
 
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -10,7 +13,7 @@ import java.util.Set;
  Съхранява ги в списък и позволява достъп до тях чрез уникално ID.
  */
 public class MachineManager {
-    // Тук пазим машините
+    //Тук пазим машините
     private Map<String, TuringMachine> machines;
 
     public MachineManager() {
@@ -28,17 +31,14 @@ public class MachineManager {
         machines.put(machine.getId(), machine);
     }
 
-    /*
-      Намира и връща машина по нейното ID.
-      Ако не я намери, връща null.
-     */
+
+    //Намира и връща машина по нейното ID. Ако не я намери, връща null.
     public TuringMachine getMachine(String id) {
         return machines.get(id);
     }
 
-    /*
-      Премахва машина от списъка по ID.
-     */
+
+    //Премахва машина от списъка по ID.
     public void removeMachine(String id) {
         if (!machines.containsKey(id)) {
             System.out.println("Машина с такова ID не е намерена.");
@@ -47,18 +47,28 @@ public class MachineManager {
         machines.remove(id);
     }
 
-    /*
-      Връща списък с всички налични ID-та на заредените машини.
-      Използва се за командата 'list'.
-     */
+
+    //Връща списък с всички налични ID-та на заредените машини
     public Set<String> getAllMachineIds() {
         return machines.keySet();
     }
 
-    /*
-      Проверява дали в момента има заредени машини.
-     */
+
+    //Проверява дали в момента има заредени машини.
     public boolean hasMachines() {
+
         return !machines.isEmpty();
+    }
+
+    public List<String> getSerializableData() {
+        List<String> data = new ArrayList<>();
+        for (String id : machines.keySet()) {
+            data.add("TM: " + id); //Засега записваме само ID-тата
+        }
+        return data;
+    }
+
+    public void clear() {
+        this.machines.clear();
     }
 }
