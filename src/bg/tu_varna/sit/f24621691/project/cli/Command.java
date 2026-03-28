@@ -1,6 +1,6 @@
 package bg.tu_varna.sit.f24621691.project.cli;
 
- //Пълен списък с команди.
+    //Пълен списък с команди.
 public enum Command {
     //Системни команди
     OPEN, CLOSE, SAVE, SAVEAS, HELP, EXIT,

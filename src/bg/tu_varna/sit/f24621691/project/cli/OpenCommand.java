@@ -1,48 +1,86 @@
 package bg.tu_varna.sit.f24621691.project.cli;
 
+import bg.tu_varna.sit.f24621691.project.model.Transition;
+import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
+import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import java.io.IOException;
 import java.util.List;
 
 public class OpenCommand implements ICommand {
     private final CommandLineInterface cli;
+    private final MachineManager manager;
 
-    public OpenCommand(CommandLineInterface cli) {
+    public OpenCommand(CommandLineInterface cli, MachineManager manager) {
         this.cli = cli;
+        this.manager = manager;
     }
 
     @Override
     public void execute(String[] args) {
-        //Проверка дали потребителят е подал път до файл
         if (args.length < 2) {
-            System.out.println("Грешка: Моля, посочете път до файл. Пример: open C:\\temp\\file.xml");
+            System.out.println("Грешка: Посочете файл.");
             return;
         }
 
         String path = args[1];
-
         try {
-            //Опитваме се да прочетем файла чрез вградения в CLI reader
-            List<String> content = cli.getFileReader().read(path);
+            List<String> lines = cli.getFileReader().read(path);
+            manager.clear();
 
-            //Ако стигнем до тук, значи файлът е зареден или създаден успешно
-            cli.setCurrentFilePath(path);
+            TuringMachine currentTM = null;
 
-            System.out.println("Successfully opened " + extractFileName(path));
+            for (String line : lines) {
+                line = line.trim();
+                if (line.isEmpty() || line.startsWith("---")) continue;
 
-            //Тук по-късно ще добавим логика за парсване на съдържанието
-            if (content.isEmpty()) {
-                System.out.println("Файлът е празен. Готов за нови данни.");
-            } else {
-                System.out.println("Прочетени са " + content.size() + " реда.");
+                if (line.startsWith("TM:")) {
+                    String id = line.replace("TM:", "").trim();
+                    currentTM = new TuringMachine(id);
+                    manager.addMachine(currentTM);
+                } else if (line.startsWith("START:") && currentTM != null) {
+                    String startState = line.replace("START:", "").trim();
+                    currentTM.setStartState(startState);
+                } else if (line.contains("->") && currentTM != null) {
+
+                    // Парсваме прехода q0, a -> q1, b, R
+                    parseTransition(currentTM, line);
+                }
             }
 
-        } catch (IOException e) {
-            System.out.println("Грешка при работа с файла: " + e.getMessage());
+            cli.setCurrentFilePath(path);
+            System.out.println("Успешно отваряне на" + path);
+
+        } catch (Exception e) {
+            System.out.println("Грешка при зареждане: " + e.getMessage());
         }
     }
 
-    //Помощен метод за извличане само на името на файла от пълния път
+    //Метод за разглобяване на прехода
+    private void parseTransition(TuringMachine tm, String line) {
+        try {
+            String[] parts = line.split("->");
+            String[] left = parts[0].split(",");
+            String[] right = parts[1].split(",");
+
+            String q = left[0].trim();
+            char read = left[1].trim().charAt(0);
+            String q2 = right[0].trim();
+            char write = right[1].trim().charAt(0);
+            char move = right[2].trim().charAt(0);
+
+            tm.addTransition(new Transition(q, read, q2, write, move));
+        } catch (Exception e) {
+            System.out.println("Прескочен невалиден преход: " + line);
+        }
+    }
+
+
+
+    //Метод за извличане само на името на файла от пълния път
     private String extractFileName(String path) {
-        return path.substring(path.lastIndexOf('\\') + 1);
+        int lastBack = path.lastIndexOf('\\');
+        int lastForward = path.lastIndexOf('/');
+        int index = Math.max(lastBack, lastForward);
+        return (index == -1) ? path : path.substring(index + 1);
     }
 }

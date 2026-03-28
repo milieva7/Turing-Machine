@@ -34,4 +34,9 @@ public class Transition {
     public char getDirection() {
         return direction;
     }
+
+    @Override
+    public String toString() {
+        return fromState + ", " + readSymbol + " -> " + toState + ", " + writeSymbol + ", " + direction;
+    }
 }

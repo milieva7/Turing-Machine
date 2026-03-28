@@ -131,9 +131,36 @@ public class TuringMachine {
         return id;
     }
     public String getCurrentState() {
+
         return currentState;
     }
+
     public Tape getTape() {
         return tape;
+    }
+
+    //Връща списъка с всички преходи
+    public List<Transition> getTransitions() {
+        return transitions;
+    }
+
+    //Връща всички състояния
+    public Set<String> getStates() {
+        return states;
+    }
+    
+    //Връща началното състояние на машината
+    public String getStartState() {
+        return startState;
+    }
+
+    //Връща списък с всички състояния, в които машината спира и приема думата
+    public Set<String> getAcceptStates() {
+        return acceptStates;
+    }
+
+    //Връща списък със състоянията, в които машината спира и отхвърля думата
+    public Set<String> getRejectStates() {
+        return rejectStates;
     }
 }

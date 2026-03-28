@@ -17,6 +17,7 @@ public class MachineManager {
     private Map<String, TuringMachine> machines;
 
     public MachineManager() {
+
         this.machines = new HashMap<>();
     }
 
@@ -62,8 +63,11 @@ public class MachineManager {
 
     public List<String> getSerializableData() {
         List<String> data = new ArrayList<>();
-        for (String id : machines.keySet()) {
-            data.add("TM: " + id); //Засега записваме само ID-тата
+        for (TuringMachine tm : machines.values()) {
+            data.add("TM: " + tm.getId());
+            for (bg.tu_varna.sit.f24621691.project.model.Transition t : tm.getTransitions()) {
+                data.add(t.toString());
+            }
         }
         return data;
     }
