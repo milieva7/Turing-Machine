@@ -1,89 +1,112 @@
 package bg.tu_varna.sit.f24621691.project.cli;
 
+import bg.tu_varna.sit.f24621691.project.core.FileServiceReader;
+import bg.tu_varna.sit.f24621691.project.io.FileServiceWriter;
 import bg.tu_varna.sit.f24621691.project.core.MachineManager;
-import bg.tu_varna.sit.f24621691.project.io.Reader;
-import bg.tu_varna.sit.f24621691.project.io.Writer;
+import bg.tu_varna.sit.f24621691.project.cli.exceptions.UnauthorizedCommandException;
+import bg.tu_varna.sit.f24621691.project.cli.exceptions.UnknownCommandException;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
 public class CommandLineInterface {
-    private final Scanner scanner;
-    private final Map<Command, ICommand> commands;
-    private final MachineManager manager;
-    private final Reader fileReader;
-    private final Writer fileWriter;
+    private final Map<Command, ICommand> commands = new HashMap<>();
+    private final MachineManager manager = new MachineManager();
+    private final FileServiceReader fileReader = new FileServiceReader();
+    private final FileServiceWriter fileWriter = new FileServiceWriter();
     private String currentFilePath = null;
+    private boolean isRunning = true;
 
-    public CommandLineInterface(MachineManager manager, Reader reader, Writer writer) {
-        this.manager = manager;
-        this.fileReader = reader;
-        this.fileWriter = writer;
-        this.scanner = new Scanner(System.in);
-        this.commands = new HashMap<>();
-
-        //Системни команди
-        commands.put(Command.OPEN, new OpenCommand(this,manager));
-        commands.put(Command.CLOSE, new CloseCommand(this, manager));
+    public CommandLineInterface() {
+        //Регистрация на командите
         commands.put(Command.SAVE, new SaveCommand(this, manager));
         commands.put(Command.SAVEAS, new SaveAsCommand(this, manager));
         commands.put(Command.HELP, new HelpCommand());
         commands.put(Command.EXIT, new ExitCommand());
-
-        //Команди за Тюринг машини
-        commands.put(Command.LIST, new ListCommand(manager));
-        commands.put(Command.PRINT, new PrintCommand(manager));
+        commands.put(Command.OPEN, new OpenCommand(this, manager));
+        commands.put(Command.CLOSE, new CloseCommand(this, manager));
         commands.put(Command.NEWTM, new NewTMCommand(manager));
+        commands.put(Command.PRINT, new PrintCommand(manager));
+        commands.put(Command.LIST, new ListCommand(manager));
         commands.put(Command.ADDTRANS, new AddTransCommand(manager));
+
     }
 
     public void start() {
-        System.out.println("DTM Simulator Engine");
-        System.out.println("Системата е готова. Напишете 'help', за да видите наличните команди.");
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("--- Симулатор на Тюринг Машина ---");
+        System.out.println("Напишете 'help' за списък с команди.");
 
-        while (true) {
+        while (isRunning) {
             System.out.print("> ");
-            String input = scanner.nextLine().trim();
-            if (input.isEmpty()) continue;
+            String input = scanner.nextLine();
 
-            processInput(input);
+            try {
+                processInput(input);
+            } catch (Exception e) {
+
+                System.err.println("Грешка: " + e.getMessage());
+            }
         }
+        scanner.close();
     }
 
     private void processInput(String input) {
-        String[] parts = input.split("\\s+");
+        if (input == null || input.isBlank()) return;
+
+        String[] parts = input.trim().split("\\s+");
         Command cmdType = Command.fromString(parts[0]);
 
-        //Проверка за заключени команди
-        if (currentFilePath == null && isProtectedCommand(cmdType)) {
-            System.out.println("Грешка: Първо трябва да отворите файл с командата 'open'!");
+        //Проверка за непозната команда
+        if (cmdType == Command.UNKNOWN) {
+            throw new UnknownCommandException("Командата '" + parts[0] + "' не съществува. Напишете 'help'.");
+        }
+
+        //Проверка за EXIT
+        if (cmdType == Command.EXIT) {
+            stop();
             return;
         }
 
+        //Проверка за достъп
+        if (isProtectedCommand(cmdType) && currentFilePath == null) {
+            throw new UnauthorizedCommandException("Първо трябва да отворите файл с командата 'open'!");
+        }
+
+        //Изпълнение
         ICommand command = commands.get(cmdType);
         if (command != null) {
             command.execute(parts);
         } else {
-            System.out.println("Неизвестна команда. Напишете 'help'.");
+            System.out.println("Командата '" + cmdType + "' е разпозната, но още не е имплементирана.");
         }
     }
 
-    //Метод за проверка на защитени команди
     private boolean isProtectedCommand(Command cmd) {
-        return cmd != Command.OPEN && cmd != Command.HELP && cmd != Command.EXIT && cmd != Command.UNKNOWN;
+        // Само тези команди са достъпни без отворен файл.
+        return cmd != Command.OPEN &&
+                cmd != Command.HELP &&
+                cmd != Command.EXIT &&
+                cmd != Command.UNKNOWN;
     }
 
-    //Гетъри и сетъри за управление на състоянието от командите
-    public void setCurrentFilePath(String path) {
-        this.currentFilePath = path;
+    public void stop() {
+        this.isRunning = false;
+        System.out.println("Излизане от програмата...");
+    }
+
+    //Гетери за командите
+    public FileServiceReader getFileReader() {
+        return fileReader;
+    }
+    public FileServiceWriter getFileWriter() {
+        return fileWriter;
     }
     public String getCurrentFilePath() {
         return currentFilePath;
     }
-    public Reader getFileReader() {
-        return fileReader;
-    }
-    public Writer getFileWriter() {
-        return fileWriter;
+    public void setCurrentFilePath(String path) {
+        this.currentFilePath = path;
     }
 }

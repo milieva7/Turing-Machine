@@ -14,7 +14,7 @@ public class CloseCommand implements ICommand {
         String path = cli.getCurrentFilePath();
 
         if (path == null) {
-            System.out.println("Грешка: В момента няма отворен файл, който да бъде затворен.");
+            System.out.println("В момента няма отворен файл, който да бъде затворен.");
             return;
         }
 

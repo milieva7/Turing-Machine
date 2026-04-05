@@ -1,9 +1,9 @@
 package bg.tu_varna.sit.f24621691.project.cli;
 
-import bg.tu_varna.sit.f24621691.project.model.Transition;
-import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 import bg.tu_varna.sit.f24621691.project.core.MachineManager;
-import java.io.IOException;
+import bg.tu_varna.sit.f24621691.project.cli.exceptions.ConfigurationException;
+import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
+import bg.tu_varna.sit.f24621691.project.model.Transition;
 import java.util.List;
 
 public class OpenCommand implements ICommand {
@@ -17,45 +17,46 @@ public class OpenCommand implements ICommand {
 
     @Override
     public void execute(String[] args) {
+        //Валидация на входа
         if (args.length < 2) {
-            System.out.println("Грешка: Посочете файл.");
-            return;
+            throw new IllegalArgumentException("Моля, посочете път до файл! open <path>");
         }
 
         String path = args[1];
-        try {
-            List<String> lines = cli.getFileReader().read(path);
-            manager.clear();
 
-            TuringMachine currentTM = null;
+        //Четем редовете.
+        //Ако файлът го няма, той ще се създаде и тук ще получим празен списък
+        List<String> lines = cli.getFileReader().read(path);
 
-            for (String line : lines) {
-                line = line.trim();
-                if (line.isEmpty() || line.startsWith("---")) continue;
+        manager.clear();
+        TuringMachine currentTM = null;
 
-                if (line.startsWith("TM:")) {
-                    String id = line.replace("TM:", "").trim();
-                    currentTM = new TuringMachine(id);
-                    manager.addMachine(currentTM);
-                } else if (line.startsWith("START:") && currentTM != null) {
-                    String startState = line.replace("START:", "").trim();
-                    currentTM.setStartState(startState);
-                } else if (line.contains("->") && currentTM != null) {
+        //Парсваме съдържанието (ако има такова)
+        for (String line : lines) {
+            line = line.trim();
+            if (line.isEmpty() || line.startsWith("---")) continue;
 
-                    // Парсваме прехода q0, a -> q1, b, R
-                    parseTransition(currentTM, line);
-                }
+            if (line.startsWith("TM:")) {
+                String id = line.replace("TM:", "").trim();
+                currentTM = new TuringMachine(id);
+                manager.addMachine(currentTM);
+            } else if (line.startsWith("START:") && currentTM != null) {
+                String startState = line.replace("START:", "").trim();
+                currentTM.setStartState(startState);
+            } else if (line.contains("->") && currentTM != null) {
+                parseTransition(currentTM, line);
             }
+        }
 
-            cli.setCurrentFilePath(path);
-            System.out.println("Успешно отваряне на" + path);
+        //Всички защитени команди са вече достъпни
+        cli.setCurrentFilePath(path);
 
-        } catch (Exception e) {
-            System.out.println("Грешка при зареждане: " + e.getMessage());
+        System.out.println("Успешно отворен файл: " + extractFileName(path));
+        if (lines.isEmpty()) {
+            System.out.println("Можете да започнете работа с 'newtm'.");
         }
     }
 
-    //Метод за разглобяване на прехода
     private void parseTransition(TuringMachine tm, String line) {
         try {
             String[] parts = line.split("->");
@@ -70,17 +71,12 @@ public class OpenCommand implements ICommand {
 
             tm.addTransition(new Transition(q, read, q2, write, move));
         } catch (Exception e) {
-            System.out.println("Прескочен невалиден преход: " + line);
+            throw new ConfigurationException("Грешка при четене на преход в '" + tm.getId() + "': " + line);
         }
     }
 
-
-
-    //Метод за извличане само на името на файла от пълния път
     private String extractFileName(String path) {
-        int lastBack = path.lastIndexOf('\\');
-        int lastForward = path.lastIndexOf('/');
-        int index = Math.max(lastBack, lastForward);
-        return (index == -1) ? path : path.substring(index + 1);
+        int lastIdx = Math.max(path.lastIndexOf('\\'), path.lastIndexOf('/'));
+        return (lastIdx == -1) ? path : path.substring(lastIdx + 1);
     }
 }

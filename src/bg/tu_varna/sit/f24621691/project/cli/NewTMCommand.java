@@ -12,12 +12,16 @@ public class NewTMCommand implements ICommand {
 
     @Override
     public void execute(String[] args) {
+
         if (args.length < 2) {
-            System.out.println("Моля, посочете име за новата машина.");
-            return;
+            throw new IllegalArgumentException("Грешка: Липсва име! Напиши: newtm <id>");
         }
+
         String id = args[1];
+
         manager.addMachine(new TuringMachine(id));
-        System.out.println("Машина с ID '" + id + "' беше създадена успешно.");
+
+        // 3. Ако горният ред не хвърли ексепшън, значи всичко е точно
+        System.out.println("Успешно създадена нова машина с ID: " + id);
     }
 }

@@ -4,5 +4,5 @@ import java.io.IOException;
 import java.util.List;
 
 public interface Writer {
-    void write(String path, List<String> lines) throws IOException;
+    void write(String path, List<String> lines);
 }

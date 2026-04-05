@@ -1,12 +1,13 @@
 package bg.tu_varna.sit.f24621691.project.cli;
 
-import java.io.IOException;
+import bg.tu_varna.sit.f24621691.project.core.MachineManager;
+import bg.tu_varna.sit.f24621691.project.io.exceptions.TuringFileNotFoundException;
 
 public class SaveCommand implements ICommand {
     private final CommandLineInterface cli;
-    private final bg.tu_varna.sit.f24621691.project.core.MachineManager manager;
+    private final MachineManager manager;
 
-    public SaveCommand(CommandLineInterface cli, bg.tu_varna.sit.f24621691.project.core.MachineManager manager) {
+    public SaveCommand(CommandLineInterface cli, MachineManager manager) {
         this.cli = cli;
         this.manager = manager;
     }
@@ -15,16 +16,19 @@ public class SaveCommand implements ICommand {
     public void execute(String[] args) {
         String path = cli.getCurrentFilePath();
 
-        try {
-
-            cli.getFileWriter().write(path, manager.getSerializableData());
-            System.out.println("Successfully saved " + extractFileName(path));
-        } catch (IOException e) {
-            System.out.println("Грешка при запис: " + e.getMessage());
+        //Дали имаме път
+        if (path == null || path.isEmpty()) {
+            throw new TuringFileNotFoundException("Няма отворен файл за запис! Използвай 'saveas' или първо 'open'.");
         }
+
+        cli.getFileWriter().write(path, manager.getSerializableData());
+
+        System.out.println("Успешно запазване в: " + extractFileName(path));
     }
 
     private String extractFileName(String path) {
-        return path.contains("\\") ? path.substring(path.lastIndexOf('\\') + 1) : path;
+        if (path == null) return "unknown";
+        int lastIdx = Math.max(path.lastIndexOf('\\'), path.lastIndexOf('/'));
+        return (lastIdx != -1) ? path.substring(lastIdx + 1) : path;
     }
 }

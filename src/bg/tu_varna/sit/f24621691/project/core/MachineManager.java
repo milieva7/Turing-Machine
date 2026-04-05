@@ -1,7 +1,7 @@
 package bg.tu_varna.sit.f24621691.project.core;
 
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
-
+import bg.tu_varna.sit.f24621691.project.core.exceptions.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.HashMap;
@@ -26,15 +26,21 @@ public class MachineManager {
       Проверява дали вече не съществува машина със същото ID.
      */
     public void addMachine(TuringMachine machine) {
+            if (machine == null) {
+                throw new IllegalArgumentException("Не може да добавите null обект!");
+            }
         if (machines.containsKey(machine.getId())) {
-            throw new IllegalArgumentException("Вече има заредена машина с ID " + machine.getId());
+            throw new DuplicateMachineException("Машина с ID '" + machine.getId() + "' вече е заредена в системата!");
         }
         machines.put(machine.getId(), machine);
     }
 
 
-    //Намира и връща машина по нейното ID. Ако не я намери, връща null.
+    //Намира и връща машина по нейното ID
     public TuringMachine getMachine(String id) {
+        if (!machines.containsKey(id)) {
+            throw new MachineNotFoundException("Не съществува заредена машина с ID '" + id + "'.");
+        }
         return machines.get(id);
     }
 
@@ -42,8 +48,7 @@ public class MachineManager {
     //Премахва машина от списъка по ID.
     public void removeMachine(String id) {
         if (!machines.containsKey(id)) {
-            System.out.println("Машина с такова ID не е намерена.");
-            return;
+            throw new MachineNotFoundException("Машина с ID '" + id + "' не е намерена.");
         }
         machines.remove(id);
     }

@@ -1,5 +1,6 @@
 package bg.tu_varna.sit.f24621691.project.model;
 
+import bg.tu_varna.sit.f24621691.project.model.exceptions.*;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -29,22 +30,22 @@ public class TuringMachine {
     }
 
 
-
     // Добавя ново състояние към машината
     public void addState(String state) {
         states.add(state);
     }
 
 
-     //Задава начално състояние
+    //Задава начално състояние
     public void setStartState(String state) {
-        if (states.contains(state)) {
-            this.startState = state;
+        if (!states.contains(state)) {
+            throw new InvalidStateException("Състоянието '" + state + "' не е дефинирано в Q!");
         }
+        this.startState = state;
     }
 
 
-     //Добавя приемно състояние
+    //Добавя приемно състояние
     public void addAcceptState(String state) {
         states.add(state);
         acceptStates.add(state);
@@ -65,7 +66,8 @@ public class TuringMachine {
         for (Transition t : transitions) {
             if (t.getFromState().equals(newTransition.getFromState()) &&
                     t.getReadSymbol() == newTransition.getReadSymbol()) {
-                throw new IllegalArgumentException("Машината трябва да е детерминирана!");
+                throw new NonDeterministicException("Вече има преход за ("
+                        + t.getFromState() + ", " + t.getReadSymbol() + ")!");
             }
         }
         transitions.add(newTransition);
@@ -90,15 +92,23 @@ public class TuringMachine {
     }
 
 
-     //Инициализира машината с входна дума
+    //Инициализира машината с входна дума
     public void init(String input) {
+        if (startState == null) {
+            throw new InvalidStateException("Машината не може да стартира без зададено начално състояние!");
+        }
         this.tape = new Tape(input);
         this.currentState = startState;
     }
 
 
-     //Изпълнява една стъпка от работата на машината
+    //Изпълнява една стъпка от работата на машината
     public void step() {
+        //Ако някой викне step без init се вика exception
+        if (this.tape == null) {
+            throw new MachineNotInitializedException("Опит за стъпка без инициализирана лента!");
+        }
+
         if (isHalted()) return;
 
         char currentSymbol = tape.read();
@@ -115,12 +125,12 @@ public class TuringMachine {
             tape.write(match.getWriteSymbol());
             tape.move(match.getDirection());
             this.currentState = match.getToState();
-        }
-        else {
-            // Ако няма преход, машината спира
+        } else {
+            //Ако няма преход, машината спира
             this.currentState = "HALTED_NO_TRANSITION";
         }
     }
+
 
     public boolean isHalted() {
         return acceptStates.contains(currentState) || rejectStates.contains(currentState) ||
@@ -130,6 +140,7 @@ public class TuringMachine {
     public String getId() {
         return id;
     }
+
     public String getCurrentState() {
 
         return currentState;
@@ -148,7 +159,7 @@ public class TuringMachine {
     public Set<String> getStates() {
         return states;
     }
-    
+
     //Връща началното състояние на машината
     public String getStartState() {
         return startState;
