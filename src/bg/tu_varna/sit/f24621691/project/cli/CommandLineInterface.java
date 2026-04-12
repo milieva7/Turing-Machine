@@ -30,6 +30,9 @@ public class CommandLineInterface {
         commands.put(Command.PRINT, new PrintCommand(manager));
         commands.put(Command.LIST, new ListCommand(manager));
         commands.put(Command.ADDTRANS, new AddTransCommand(manager));
+        commands.put(Command.INIT, new InitCommand(manager));
+        commands.put(Command.STEP, new StepCommand(manager));
+        commands.put(Command.TAPE, new TapeCommand(manager));
 
     }
 
