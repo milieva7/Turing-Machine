@@ -13,28 +13,39 @@ public class PrintCommand implements ICommand {
 
     @Override
     public void execute(String[] args) {
-        // 1. Валидация на аргументите
+        //Проверка за аргументи
         if (args.length < 2) {
-            throw new IllegalArgumentException("Трябва да посочиш ID! Напиши: print <id>");
+            System.out.println("Грешка: Трябва да посочиш ID! Употреба: print <id>");
+            return;
         }
 
         String id = args[1];
-
         TuringMachine tm = manager.getMachine(id);
+
+        //Проверка дали машината съществува
+        if (tm == null) {
+            System.out.println("Грешка: Машина с ID '" + id + "' не е заредена.");
+            return;
+        }
 
         System.out.println("--------------------------------------");
         System.out.println(" МАШИНА ID: " + tm.getId());
         System.out.println(" Начално състояние: " + (tm.getStartState() != null ? tm.getStartState() : "---"));
+
+
+        String statesList = (tm.getStates() != null && !tm.getStates().isEmpty())
+                ? String.join(", ", tm.getStates())
+                : "---";
+        System.out.println(" Състояния: " + statesList);
+
+
         System.out.println("--------------------------------------");
 
         System.out.println("Преходи:");
 
-        if (tm.getTransitions().isEmpty()) {
-
+        if (tm.getTransitions() == null || tm.getTransitions().isEmpty()) {
             System.out.println(" (Няма добавени преходи)");
-
         } else {
-
             for (Transition t : tm.getTransitions()) {
                 System.out.print(" Ако си в [" + t.getFromState() + "] и видиш '" + t.getReadSymbol() + "'");
                 System.out.print(" -> Отиди в [" + t.getToState() + "], напиши '" + t.getWriteSymbol() + "'");

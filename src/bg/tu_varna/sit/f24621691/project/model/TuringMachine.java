@@ -174,4 +174,33 @@ public class TuringMachine {
     public Set<String> getRejectStates() {
         return rejectStates;
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        //Записваме ID-то с префикс TM
+        sb.append("TM: ").append(id).append("\n");
+
+        //Записваме преходите във формат
+        for (Transition t : transitions) {
+            sb.append(t.getFromState()).append(", ")
+                    .append(t.getReadSymbol()).append(" -> ")
+                    .append(t.getToState()).append(", ")
+                    .append(t.getWriteSymbol()).append(", ")
+                    .append(t.getDirection()).append("\n");
+        }
+
+        //Всички състояния накрая
+        if (!states.isEmpty()) {
+            sb.append(String.join(",", states)).append("\n");
+        }
+
+        //начално, приемащи и отхвърлящи, ги добавяме като последен ред,
+        if (startState != null) {
+            sb.append("Start: ").append(startState).append("\n");
+        }
+
+        return sb.toString().trim();
+    }
 }

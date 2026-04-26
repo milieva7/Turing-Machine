@@ -33,6 +33,9 @@ public class CommandLineInterface {
         commands.put(Command.INIT, new InitCommand(manager));
         commands.put(Command.STEP, new StepCommand(manager));
         commands.put(Command.TAPE, new TapeCommand(manager));
+        commands.put(Command.SAVETM, new SaveTMCommand(this, manager));
+        commands.put(Command.LOADTM, new LoadTMCommand(this, manager));
+        commands.put(Command.ADDSTATE, new AddStateCommand(manager));
 
     }
 

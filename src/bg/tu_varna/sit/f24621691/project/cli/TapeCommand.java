@@ -34,7 +34,7 @@ public class TapeCommand implements ICommand {
                 throw new MachineNotInitializedException("Конфигурацията липсва. Машина '" + id + "' не разполага с инициализирана лента.");
             }
 
-           
+
             System.out.println("\n=== Визуализация на лентата (ID: " + id + ") ===");
             System.out.println(tm.getTape().toString());
             System.out.println("============================================\n");
