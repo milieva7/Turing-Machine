@@ -1,51 +1,39 @@
 package bg.tu_varna.sit.f24621691.project.cli;
 
 import bg.tu_varna.sit.f24621691.project.core.MachineManager;
-import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
-import bg.tu_varna.sit.f24621691.project.core.exceptions.MachineNotFoundException;
 import bg.tu_varna.sit.f24621691.project.cli.exceptions.ConfigurationException;
+import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 
-public class InitCommand implements ICommand {
+public class InitCommand extends AbstractCommand {
     private final MachineManager manager;
 
     public InitCommand(MachineManager manager) {
+        super("init <id> <input>", "Инициализира машина с входна дума върху лентата.");
         this.manager = manager;
     }
 
     @Override
     public void execute(String[] args) {
-        if (args.length < 3) {
-            System.out.println("Трябва да подадеш ID и дума! Пробвай: init <id> <input>");
-            return;
-        }
+        //Проверка за правилен брой аргументи
+        validateArgs(args, 3, 3);
 
         String id = args[1];
         String input = args[2];
 
-        try {
-            TuringMachine tm = manager.getMachine(id);
-
-            //Проверка дали има такава машината
-            if (tm == null) {
-                throw new MachineNotFoundException("Не е намерена машина с ID '" + id + "'.");
-            }
-
-            //Проверка за празна дума
-            if (input.trim().isEmpty()) {
-                throw new ConfigurationException("Не можеш да пуснеш празна дума!");
-            }
-
-            tm.init(input);
-
-            System.out.println("Машина " + id + " е инициализирана с дума: " + input);
-            System.out.println("Текущо състояние: " + tm.getCurrentState());
-
-        } catch (MachineNotFoundException e) {
-            System.out.println("Неуспешна инициализация. " + e.getMessage());
-        } catch (ConfigurationException e) {
-            System.out.println("Невалидна конфигурация на входните данни. " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Възникна неочаквано изключение при изпълнение на командата. Детайли: " + e.getMessage());
+        //Проверка за празна входна дума
+        if (input.isBlank()) {
+            throw new ConfigurationException("Не можеш да пуснеш празна дума!");
         }
+
+        //Търсим машината по ID.
+        //Ако такава машина не съществува, manager-ът ще хвърли exception.
+        TuringMachine tm = manager.getMachine(id);
+
+        //Инициализираме машината с подадената дума
+        tm.init(input);
+
+        //Показваме резултата от инициализацията
+        System.out.println("Машина '" + id + "' е инициализирана с дума: " + input);
+        System.out.println("Текущо състояние: " + tm.getCurrentState());
     }
 }

@@ -2,55 +2,46 @@ package bg.tu_varna.sit.f24621691.project.cli;
 
 import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
-import bg.tu_varna.sit.f24621691.project.core.exceptions.MachineNotFoundException;
 import bg.tu_varna.sit.f24621691.project.model.exceptions.MachineNotInitializedException;
 
-public class StepCommand implements ICommand {
+public class StepCommand extends AbstractCommand {
     private final MachineManager manager;
 
     public StepCommand(MachineManager manager) {
+        super("step <id>", "Изпълнява една стъпка от работата на дадена машина.");
         this.manager = manager;
     }
 
     @Override
     public void execute(String[] args) {
-        if (args.length < 2) {
-            System.out.println("Невалиден брой параметри. Правилен формат: 'step <id>'");
-            return;
-        }
+        //Проверка за правилен брой аргументи
+        validateArgs(args, 2, 2);
 
         String id = args[1];
 
-        try {
-            TuringMachine tm = manager.getMachine(id);
+        //Търсим машината по ID.
+        //Ако такава машина не съществува, manager-ът ще хвърли exception.
+        TuringMachine tm = manager.getMachine(id);
 
-            //Проверка за съществуване на машината
-            if (tm == null) {
-                throw new MachineNotFoundException("Машина с идентификатор '" + id + "' не е открита в системата.");
-            }
-
-            //Проверка за инициализирана лента
-            if (tm.getTape() == null) {
-                throw new MachineNotInitializedException("Операцията не може да бъде изпълнена. Машина '" + id + "' не е инициализирана с входна дума.");
-            }
-
-            //Проверка на състоянието
-            if (tm.isHalted()) {
-                System.out.println("Машината е в крайно състояние (" + tm.getCurrentState() + ") и е прекратила работа.");
-                return;
-            }
-
-            //Изпълнение на стъпката
-            tm.step();
-
-            System.out.println("Успешно изпълнена стъпка. Текущо оперативно състояние: " + tm.getCurrentState());
-
-        } catch (MachineNotFoundException e) {
-            System.out.println("Грешка при изпълнение: " + e.getMessage());
-        } catch (MachineNotInitializedException e) {
-            System.out.println("Грешка в жизнения цикъл: " + e.getMessage());
-        } catch (Exception e) {
-            System.out.println("Непредвидено изключение при изпълнение на стъпка. Детайли: " + e.getMessage());
+        //Проверка дали машината е инициализирана с входна дума
+        if (tm.getTape() == null) {
+            throw new MachineNotInitializedException(
+                    "Операцията не може да бъде изпълнена. Машина '" + id + "' не е инициализирана с входна дума."
+            );
         }
+
+        //Ако машината вече е спряла, не изпълняваме нова стъпка
+        if (tm.isHalted()) {
+            System.out.println("Машината е в крайно състояние и е прекратила работа.");
+            System.out.println("Текущо състояние: " + tm.getCurrentState());
+            return;
+        }
+
+        //Изпълняваме една стъпка от машината
+        tm.step();
+
+        //Показваме новото текущо състояние
+        System.out.println("Успешно изпълнена стъпка.");
+        System.out.println("Текущо оперативно състояние: " + tm.getCurrentState());
     }
 }

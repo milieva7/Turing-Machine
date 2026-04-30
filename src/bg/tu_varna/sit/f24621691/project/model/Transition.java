@@ -3,22 +3,29 @@ package bg.tu_varna.sit.f24621691.project.model;
 import bg.tu_varna.sit.f24621691.project.model.exceptions.*;
 
 public class Transition {
-    private String fromState;
-    private char readSymbol;
-    private String toState;
-    private char writeSymbol;
-    private char direction; // L, R, S
+    private final String fromState;
+    private final char readSymbol;
+    private final String toState;
+    private final char writeSymbol;
+    private final char direction; // L, R, S
 
-    public Transition(String fromState, char readSymbol, String toState, char writeSymbol, char direction) {
-        // Проверка за валидна посока
+    public Transition(String fromState, char readSymbol,
+                      String toState, char writeSymbol, char direction) {
+
+        //Проверка за валидни състояния
+        if (fromState == null || fromState.isBlank()
+                || toState == null || toState.isBlank()) {
+            throw new InvalidStateException("Състоянията не могат да бъдат празни!");
+        }
+
+        //нормализиране
+        direction = Character.toUpperCase(direction);
+
+        //Проверка за валидна посока
         if (direction != 'L' && direction != 'R' && direction != 'S') {
-            throw new InvalidDirectionException("Невалидна посока: '" + direction + "'. Позволени са само L, R, S.");
+            throw new InvalidDirectionException("Невалидна посока: " + direction);
         }
 
-        //Можеш да добавиш и проверка за null на състоянията, ако искаш да си бетон
-        if (fromState == null || toState == null) {
-            throw new InvalidStateException("Състоянията не могат да бъдат null!");
-        }
         this.fromState = fromState;
         this.readSymbol = readSymbol;
         this.toState = toState;
@@ -48,6 +55,8 @@ public class Transition {
 
     @Override
     public String toString() {
-        return fromState + ", " + readSymbol + " -> " + toState + ", " + writeSymbol + ", " + direction;
+        return fromState + ", " + readSymbol +
+                " -> " + toState + ", " +
+                writeSymbol + ", " + direction;
     }
 }

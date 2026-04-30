@@ -1,4 +1,4 @@
-package bg.tu_varna.sit.f24621691.project.core;
+package bg.tu_varna.sit.f24621691.project.io;
 
 import bg.tu_varna.sit.f24621691.project.io.exceptions.TuringFileNotFoundException;
 import java.io.File;
@@ -7,7 +7,7 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FileServiceReader {
+public class FileServiceReader implements Reader {
 
     /*
       Чете съдържанието на файл.

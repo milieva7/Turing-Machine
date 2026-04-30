@@ -1,6 +1,7 @@
 package bg.tu_varna.sit.f24621691.project.model;
 
 import bg.tu_varna.sit.f24621691.project.model.exceptions.*;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -10,7 +11,7 @@ public class TuringMachine {
     private String id;
     private Set<String> states; // Q
     private Set<Character> inputAlphabet; // Sigma
-    private Set<Character> tapeAlphabet; //Gamma
+    private Set<Character> tapeAlphabet; // Gamma
     private String startState; // q0
     private Set<String> acceptStates; // F
     private Set<String> rejectStates; // R
@@ -18,6 +19,7 @@ public class TuringMachine {
 
     private Tape tape;
     private String currentState;
+    private boolean haltedNoTransition;
 
     public TuringMachine(String id) {
         this.id = id;
@@ -29,93 +31,100 @@ public class TuringMachine {
         this.transitions = new ArrayList<>();
     }
 
-
-    // Добавя ново състояние към машината
+    //Добавя ново състояние
     public void addState(String state) {
+        if (state == null || state.isBlank()) {
+            throw new InvalidStateException("Състоянието не може да бъде празно!");
+        }
         states.add(state);
     }
-
 
     //Задава начално състояние
     public void setStartState(String state) {
         if (!states.contains(state)) {
-            throw new InvalidStateException("Състоянието '" + state + "' не е дефинирано в Q!");
+            throw new InvalidStateException("Състоянието '" + state + "' не е дефинирано!");
         }
         this.startState = state;
     }
 
-
-    //Добавя приемно състояние
+    //Приемащо състояние
     public void addAcceptState(String state) {
-        states.add(state);
+        addState(state);
         acceptStates.add(state);
     }
 
-
-    // Добавя отказно състояние
+    //Отказно състояние
     public void addRejectState(String state) {
-        states.add(state);
+        addState(state);
         rejectStates.add(state);
     }
 
-    /*
-      Добавя преход,проверява за детерминираност;
-      не позволява два прехода за една и съща двойка състояние, символ
-     */
+    //Добавя преход
     public void addTransition(Transition newTransition) {
+
+        // Проверка дали състоянията съществуват
+        if (!states.contains(newTransition.getFromState())) {
+            throw new InvalidStateException("Невалидно начално състояние!");
+        }
+
+        if (!states.contains(newTransition.getToState())) {
+            throw new InvalidStateException("Невалидно крайно състояние!");
+        }
+
+        //Проверка за детерминираност
         for (Transition t : transitions) {
-            if (t.getFromState().equals(newTransition.getFromState()) &&
-                    t.getReadSymbol() == newTransition.getReadSymbol()) {
-                throw new NonDeterministicException("Вече има преход за ("
-                        + t.getFromState() + ", " + t.getReadSymbol() + ")!");
+            if (t.getFromState().equals(newTransition.getFromState())
+                    && t.getReadSymbol() == newTransition.getReadSymbol()) {
+                throw new NonDeterministicException("Вече има такъв преход!");
             }
         }
+
+        //Добавяне към азбуките
+        inputAlphabet.add(newTransition.getReadSymbol());
+        tapeAlphabet.add(newTransition.getReadSymbol());
+        tapeAlphabet.add(newTransition.getWriteSymbol());
+
         transitions.add(newTransition);
     }
 
-    // Премахва преход за дадено състояние и символ
+    //Премахва преход
     public void removeTransition(String state, char symbol) {
-        // Нов празен списък
-        List<Transition> remainingTransitions = new ArrayList<>();
+        List<Transition> remaining = new ArrayList<>();
 
-        //Минаваме през стария списък
         for (Transition t : transitions) {
-            //Ако преходът не е този, който търсим
             if (!(t.getFromState().equals(state) && t.getReadSymbol() == symbol)) {
-                //го добавяме в новия списък
-                remainingTransitions.add(t);
+                remaining.add(t);
             }
         }
 
-        //Заменяме стария списък с новия
-        this.transitions = remainingTransitions;
+        this.transitions = remaining;
     }
 
-
-    //Инициализира машината с входна дума
+    //Инициализация
     public void init(String input) {
         if (startState == null) {
-            throw new InvalidStateException("Машината не може да стартира без зададено начално състояние!");
+            throw new InvalidStateException("Няма начално състояние!");
         }
+
         this.tape = new Tape(input);
         this.currentState = startState;
+        this.haltedNoTransition = false;
     }
 
-
-    //Изпълнява една стъпка от работата на машината
+    //Една стъпка
     public void step() {
-        //Ако някой викне step без init се вика exception
-        if (this.tape == null) {
-            throw new MachineNotInitializedException("Опит за стъпка без инициализирана лента!");
+        if (tape == null) {
+            throw new MachineNotInitializedException("Машината не е стартирана!");
         }
 
         if (isHalted()) return;
 
-        char currentSymbol = tape.read();
+        char symbol = tape.read();
         Transition match = null;
 
         for (Transition t : transitions) {
-            if (t.getFromState().equals(currentState) && t.getReadSymbol() == currentSymbol) {
+            if (t.getFromState().equals(currentState)
+                    && t.getReadSymbol() == symbol) {
                 match = t;
                 break;
             }
@@ -124,65 +133,25 @@ public class TuringMachine {
         if (match != null) {
             tape.write(match.getWriteSymbol());
             tape.move(match.getDirection());
-            this.currentState = match.getToState();
+            currentState = match.getToState();
         } else {
-            //Ако няма преход, машината спира
-            this.currentState = "HALTED_NO_TRANSITION";
+            haltedNoTransition = true;
         }
     }
 
-
+    //Проверка дали е спряла
     public boolean isHalted() {
-        return acceptStates.contains(currentState) || rejectStates.contains(currentState) ||
-                "HALTED_NO_TRANSITION".equals(currentState);
+        return acceptStates.contains(currentState)
+                || rejectStates.contains(currentState)
+                || haltedNoTransition;
     }
 
-    public String getId() {
-        return id;
-    }
-
-    public String getCurrentState() {
-
-        return currentState;
-    }
-
-    public Tape getTape() {
-        return tape;
-    }
-
-    //Връща списъка с всички преходи
-    public List<Transition> getTransitions() {
-        return transitions;
-    }
-
-    //Връща всички състояния
-    public Set<String> getStates() {
-        return states;
-    }
-
-    //Връща началното състояние на машината
-    public String getStartState() {
-        return startState;
-    }
-
-    //Връща списък с всички състояния, в които машината спира и приема думата
-    public Set<String> getAcceptStates() {
-        return acceptStates;
-    }
-
-    //Връща списък със състоянията, в които машината спира и отхвърля думата
-    public Set<String> getRejectStates() {
-        return rejectStates;
-    }
-
-    @Override
-    public String toString() {
+    //Форматиране
+    public String formatMachine() {
         StringBuilder sb = new StringBuilder();
 
-        //Записваме ID-то с префикс TM
         sb.append("TM: ").append(id).append("\n");
 
-        //Записваме преходите във формат
         for (Transition t : transitions) {
             sb.append(t.getFromState()).append(", ")
                     .append(t.getReadSymbol()).append(" -> ")
@@ -191,16 +160,35 @@ public class TuringMachine {
                     .append(t.getDirection()).append("\n");
         }
 
-        //Всички състояния накрая
-        if (!states.isEmpty()) {
-            sb.append(String.join(",", states)).append("\n");
-        }
-
-        //начално, приемащи и отхвърлящи, ги добавяме като последен ред,
-        if (startState != null) {
-            sb.append("Start: ").append(startState).append("\n");
-        }
-
         return sb.toString().trim();
+    }
+
+    @Override
+    public String toString() {
+        return "TuringMachine{id='" + id + "'}";
+    }
+
+    public String getId() { return id; }
+    public String getCurrentState() { return currentState; }
+    public Tape getTape() { return tape; }
+
+    public List<Transition> getTransitions() {
+        return new ArrayList<>(transitions);
+    }
+
+    public Set<String> getStates() {
+        return new HashSet<>(states);
+    }
+
+    public String getStartState() {
+        return startState;
+    }
+
+    public Set<String> getAcceptStates() {
+        return new HashSet<>(acceptStates);
+    }
+
+    public Set<String> getRejectStates() {
+        return new HashSet<>(rejectStates);
     }
 }
