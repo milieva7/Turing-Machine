@@ -27,16 +27,30 @@ public class CommandLineInterface {
         commands.put(Command.EXIT, new ExitCommand(this));
         commands.put(Command.OPEN, new OpenCommand(this, manager));
         commands.put(Command.CLOSE, new CloseCommand(this, manager));
-        commands.put(Command.NEWTM, new NewTMCommand(manager));
-        commands.put(Command.PRINT, new PrintCommand(manager));
+
         commands.put(Command.LIST, new ListCommand(manager));
-        commands.put(Command.ADDTRANS, new AddTransCommand(manager));
-        commands.put(Command.INIT, new InitCommand(manager));
-        commands.put(Command.STEP, new StepCommand(manager));
-        commands.put(Command.TAPE, new TapeCommand(manager));
+        commands.put(Command.PRINT, new PrintCommand(manager));
         commands.put(Command.SAVETM, new SaveTMCommand(this, manager));
         commands.put(Command.LOADTM, new LoadTMCommand(this, manager));
+        commands.put(Command.NEWTM, new NewTMCommand(manager));
+
         commands.put(Command.ADDSTATE, new AddStateCommand(manager));
+        commands.put(Command.SETSTART, new SetStartCommand(manager));
+        commands.put(Command.ADDACCEPT, new AddAcceptCommand(manager));
+        commands.put(Command.ADDREJECT, new AddRejectCommand(manager));
+        commands.put(Command.ADDTRANS, new AddTransCommand(manager));
+        commands.put(Command.REMOVETRANS, new RemoveTransCommand(manager));
+        commands.put(Command.CHECKDET, new CheckDetCommand(manager));
+
+        commands.put(Command.INIT, new InitCommand(manager));
+        commands.put(Command.STEP, new StepCommand(manager));
+        commands.put(Command.RUN, new RunCommand(manager));
+        commands.put(Command.STATUS, new StatusCommand(manager));
+        commands.put(Command.TAPE, new TapeCommand(manager));
+        commands.put(Command.RESET, new ResetCommand(manager));
+        commands.put(Command.ACCEPTS, new AcceptsCommand(manager));
+        commands.put(Command.TRACE, new TraceCommand(manager));
+        commands.put(Command.REPORT, new ReportCommand(manager));
     }
 
     public void start() {

@@ -139,11 +139,23 @@ public class TuringMachine {
         }
     }
 
-    //Проверка дали е спряла
+    // Нулира текущото изпълнение на машината
+    public void reset() {
+        this.tape = null;
+        this.currentState = null;
+        this.haltedNoTransition = false;
+    }
+
+    //Проверява дали машината е достигнала крайно състояние
     public boolean isHalted() {
         return acceptStates.contains(currentState)
                 || rejectStates.contains(currentState)
                 || haltedNoTransition;
+    }
+
+    //Проверка дали машината е спряла поради липсващ преход
+    public boolean isHaltedNoTransition() {
+        return haltedNoTransition;
     }
 
     //Форматиране
