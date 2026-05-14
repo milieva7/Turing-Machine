@@ -7,17 +7,25 @@ import bg.tu_varna.sit.f24621691.project.model.exceptions.MachineNotInitializedE
 public class RunCommand extends AbstractCommand {
     private final MachineManager manager;
 
+    //Подразбиращ се лимит, ако потребителят не подаде max=<n>
+    private static final int DEFAULT_MAX_STEPS = 1000;
+
     public RunCommand(MachineManager manager) {
-        super("run <id>", "Изпълнява машината до достигане на крайно състояние.");
+        super("run <id> [max=<n>]", "Изпълнява машината до достигане на крайно състояние.");
         this.manager = manager;
     }
 
     @Override
     public void execute(String[] args) {
-        //Проверка за правилен брой аргументи
-        validateArgs(args, 2, 2);
+        //Проверка за правилен брой аргументи.
+        //Позволяваме: run <id>; run <id> max=<n>
+        validateArgs(args, 2, 3);
 
         String id = args[1];
+
+        //Взимаме максималния брой стъпки.
+        //Ако няма подаден max=<n>, използваме DEFAULT_MAX_STEPS.
+        int maxSteps = getMaxSteps(args);
 
         //Търсим машината по ID.
         //Ако няма такава машина, manager-ът ще хвърли exception.
@@ -39,10 +47,18 @@ public class RunCommand extends AbstractCommand {
 
         int steps = 0;
 
-        //Изпълняваме машината, докато не спре
-        while (!tm.isHalted()) {
+        //Изпълняваме машината, докато не спре или докато не стигнем лимита
+        while (!tm.isHalted() && steps < maxSteps) {
             tm.step();
             steps++;
+        }
+
+        //Ако машината още не е спряла, значи сме стигнали max лимита
+        if (!tm.isHalted()) {
+            System.out.println("Достигнат е максималният брой стъпки: " + maxSteps);
+            System.out.println("Машината не е приключила изпълнението си.");
+            System.out.println("Текущо състояние: " + tm.getCurrentState());
+            return;
         }
 
         System.out.println("Изпълнението приключи.");
@@ -58,6 +74,35 @@ public class RunCommand extends AbstractCommand {
             System.out.println("Резултат: машината е спряла поради липсващ преход.");
         } else {
             System.out.println("Резултат: машината е спряла.");
+        }
+    }
+
+    // Взима max=<n> от аргументите, ако е подаден
+    private int getMaxSteps(String[] args) {
+        //Ако няма трети аргумент, връщаме подразбиращия се лимит
+        if (args.length < 3) {
+            return DEFAULT_MAX_STEPS;
+        }
+
+        String maxArg = args[2];
+
+        //Проверка дали аргументът е във формат max=<n>
+        if (!maxArg.startsWith("max=")) {
+            throw new IllegalArgumentException("Невалиден параметър. Използвай: max=<n>");
+        }
+
+        String value = maxArg.replace("max=", "");
+
+        try {
+            int maxSteps = Integer.parseInt(value);
+
+            if (maxSteps <= 0) {
+                throw new IllegalArgumentException("max трябва да бъде положително число.");
+            }
+
+            return maxSteps;
+        } catch (NumberFormatException e) {
+            throw new IllegalArgumentException("max трябва да бъде число.");
         }
     }
 }

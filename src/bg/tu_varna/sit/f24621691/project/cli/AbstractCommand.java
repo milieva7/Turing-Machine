@@ -25,18 +25,4 @@ public abstract class AbstractCommand implements ICommand {
             throw new IllegalArgumentException("Употреба: " + usage);
         }
     }
-
-    //Събира аргументите от дадена позиция нататък в един текст
-    protected String joinFrom(String[] args, int startIndex) {
-        StringBuilder sb = new StringBuilder();
-
-        for (int i = startIndex; i < args.length; i++) {
-            if (i > startIndex) {
-                sb.append(" ");
-            }
-            sb.append(args[i]);
-        }
-
-        return sb.toString();
-    }
 }
