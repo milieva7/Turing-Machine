@@ -5,5 +5,4 @@ import java.util.List;
 
 public interface Writer {
     void write(String path, List<String> lines);
-    void writeSingle(String path, String data);
 }

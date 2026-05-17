@@ -4,17 +4,35 @@ import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 import bg.tu_varna.sit.f24621691.project.model.exceptions.MachineNotInitializedException;
 
+/**
+ * Команда за изпълнение на Машина на Тюринг до достигане на крайно състояние.
+ * Командата поддържа максимален брой стъпки, за да се избегне безкрайно изпълнение.
+ */
 public class RunCommand extends AbstractCommand {
     private final MachineManager manager;
 
     //Подразбиращ се лимит, ако потребителят не подаде max=<n>
     private static final int DEFAULT_MAX_STEPS = 1000;
 
+    /**
+     * Създава команда за изпълнение на машина.
+     *
+     * @param manager мениджърът, от който се взима машината
+     */
     public RunCommand(MachineManager manager) {
         super("run <id> [max=<n>]", "Изпълнява машината до достигане на крайно състояние.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата run.
+     * Стартира изпълнение на вече инициализирана машина, докато тя спре
+     * или докато бъде достигнат максималният брой стъпки.
+     *
+     * @param args аргументи на командата
+     * @throws MachineNotInitializedException ако машината не е инициализирана
+     * @throws IllegalArgumentException ако параметърът max е невалиден
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи.
@@ -77,7 +95,14 @@ public class RunCommand extends AbstractCommand {
         }
     }
 
-    // Взима max=<n> от аргументите, ако е подаден
+    /**
+     * Взима максималния брой стъпки от аргументите на командата.
+     * Ако не е подаден max параметър, връща подразбиращия се лимит.
+     *
+     * @param args аргументите на командата
+     * @return максималният брой стъпки
+     * @throws IllegalArgumentException ако max параметърът е в невалиден формат
+     */
     private int getMaxSteps(String[] args) {
         //Ако няма трети аргумент, връщаме подразбиращия се лимит
         if (args.length < 3) {

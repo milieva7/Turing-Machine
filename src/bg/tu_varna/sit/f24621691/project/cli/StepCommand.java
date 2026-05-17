@@ -4,14 +4,30 @@ import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 import bg.tu_varna.sit.f24621691.project.model.exceptions.MachineNotInitializedException;
 
+/**
+ * Команда за изпълнение на една стъпка от работата на Машина на Тюринг.
+ * Командата работи само ако машината вече е инициализирана с входна дума.
+ */
 public class StepCommand extends AbstractCommand {
     private final MachineManager manager;
 
+    /**
+     * Създава команда за изпълнение на една стъпка.
+     *
+     * @param manager мениджърът, от който се взима машината
+     */
     public StepCommand(MachineManager manager) {
         super("step <id>", "Изпълнява една стъпка от работата на дадена машина.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата step.
+     * Намира машина по ID и изпълнява една стъпка от нейната работа.
+     *
+     * @param args аргументи на командата
+     * @throws MachineNotInitializedException ако машината не е инициализирана
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи

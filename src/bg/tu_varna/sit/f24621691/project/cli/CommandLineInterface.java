@@ -10,6 +10,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
 
+/**
+ * Класът реализира командния интерфейс на приложението.
+ * Отговаря за регистриране на командите, четене на вход от конзолата
+ * и извикване на съответната команда според въведения текст.
+ */
 public class CommandLineInterface {
     private final Map<Command, ICommand> commands = new HashMap<>();
     private final MachineManager manager = new MachineManager();
@@ -19,6 +24,9 @@ public class CommandLineInterface {
     private String currentFilePath = null;
     private boolean isRunning = true;
 
+    /**
+     * Създава нов команден интерфейс и регистрира всички налични команди.
+     */
     public CommandLineInterface() {
         //Регистрация на командите
         commands.put(Command.SAVE, new SaveCommand(this, manager));
@@ -53,6 +61,10 @@ public class CommandLineInterface {
         commands.put(Command.REPORT, new ReportCommand(manager));
     }
 
+    /**
+     * Стартира главния цикъл на командния интерфейс.
+     * Чете команди от конзолата, докато програмата не бъде спряна.
+     */
     public void start() {
         Scanner scanner = new Scanner(System.in);
 
@@ -73,6 +85,15 @@ public class CommandLineInterface {
         scanner.close();
     }
 
+    /**
+     * Обработва въведена команда.
+     * Разпознава командата, проверява дали е позволена за изпълнение
+     * и извиква съответния команден обект.
+     *
+     * @param input текстът, въведен от потребителя
+     * @throws UnknownCommandException ако командата не съществува
+     * @throws UnauthorizedCommandException ако командата изисква отворен файл, но такъв няма
+     */
     private void processInput(String input) {
         if (input == null || input.isBlank()) {
             return;
@@ -119,7 +140,14 @@ public class CommandLineInterface {
         }
     }
 
-    //Събира елементите от масива от даден индекс нататък в един текст
+    /**
+     * Събира елементите от масив от даден индекс нататък в един текст.
+     * Използва се при команди, които могат да съдържат път с интервали.
+     *
+     * @param parts масивът с аргументи
+     * @param startIndex индексът, от който започва събирането
+     * @return обединеният текст
+     */
     private String joinFrom(String[] parts, int startIndex) {
         StringBuilder sb = new StringBuilder();
 
@@ -133,6 +161,12 @@ public class CommandLineInterface {
         return sb.toString();
     }
 
+    /**
+     * Проверява дали дадена команда изисква вече отворен файл.
+     *
+     * @param cmd командата, която се проверява
+     * @return true ако командата е защитена, иначе false
+     */
     private boolean isProtectedCommand(Command cmd) {
         return cmd != Command.OPEN &&
                 cmd != Command.HELP &&
@@ -140,23 +174,46 @@ public class CommandLineInterface {
                 cmd != Command.UNKNOWN;
     }
 
+    /**
+     * Спира главния цикъл на командния интерфейс.
+     */
     public void stop() {
         this.isRunning = false;
         System.out.println("Излизане от програмата...");
     }
 
+    /**
+     * Връща обекта за четене от файл.
+     *
+     * @return FileServiceReader обектът
+     */
     public FileServiceReader getFileReader() {
         return fileReader;
     }
 
+    /**
+     * Връща обекта за запис във файл.
+     *
+     * @return FileServiceWriter обектът
+     */
     public FileServiceWriter getFileWriter() {
         return fileWriter;
     }
 
+    /**
+     * Връща пътя към текущо отворения файл.
+     *
+     * @return текущият път до файл или null, ако няма отворен файл
+     */
     public String getCurrentFilePath() {
         return currentFilePath;
     }
 
+    /**
+     * Задава пътя към текущо отворения файл.
+     *
+     * @param path новият път до текущия файл
+     */
     public void setCurrentFilePath(String path) {
         this.currentFilePath = path;
     }

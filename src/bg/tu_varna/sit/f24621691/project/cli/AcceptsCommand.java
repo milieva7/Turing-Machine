@@ -3,17 +3,34 @@ package bg.tu_varna.sit.f24621691.project.cli;
 import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 
+/**
+ * Команда за проверка дали Машина на Тюринг приема дадена входна дума.
+ * Командата инициализира машината с подадената дума и я изпълнява
+ * до спиране или до достигане на максимален брой стъпки.
+ */
 public class AcceptsCommand extends AbstractCommand {
     private final MachineManager manager;
 
     //Подразбиращ се лимит, ако потребителят не подаде max=<n>
     private static final int DEFAULT_MAX_STEPS = 1000;
 
+    /**
+     * Създава команда за проверка на входна дума.
+     *
+     * @param manager мениджърът, от който се взима машината
+     */
     public AcceptsCommand(MachineManager manager) {
         super("accepts <id> <word> [max=<n>]", "Проверява дали машината приема дадена дума.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата accepts.
+     * Стартира машината с подадената дума и проверява дали тя достига приемащо състояние.
+     *
+     * @param args аргументи на командата
+     * @throws IllegalArgumentException ако параметърът max е в невалиден формат
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи.
@@ -61,7 +78,14 @@ public class AcceptsCommand extends AbstractCommand {
         }
     }
 
-    //Взима max=<n> от аргументите, ако е подаден
+    /**
+     * Взима максималния брой стъпки от аргументите на командата.
+     * Ако не е подаден max параметър, връща подразбиращия се лимит.
+     *
+     * @param args аргументите на командата
+     * @return максималният брой стъпки
+     * @throws IllegalArgumentException ако max параметърът е в невалиден формат
+     */
     private int getMaxSteps(String[] args) {
         //Ако няма четвърти аргумент, връщаме подразбиращия се лимит
         if (args.length < 4) {

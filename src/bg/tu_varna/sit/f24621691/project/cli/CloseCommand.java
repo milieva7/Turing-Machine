@@ -2,16 +2,32 @@ package bg.tu_varna.sit.f24621691.project.cli;
 
 import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 
+/**
+ * Команда за затваряне на текущо отворения файл.
+ * Изчиства заредените машини и премахва текущия активен път до файл.
+ */
 public class CloseCommand extends AbstractCommand {
     private final CommandLineInterface cli;
     private final MachineManager manager;
 
+    /**
+     * Създава команда за затваряне на файл.
+     *
+     * @param cli командният интерфейс, в който се пази текущият файл
+     * @param manager мениджърът, който съхранява заредените машини
+     */
     public CloseCommand(CommandLineInterface cli, MachineManager manager) {
         super("close", "Затваря текущо отворения файл и изчиства заредените машини.");
         this.cli = cli;
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата close.
+     * Затваря текущия файл, нулира текущия път и изчиства заредените машини.
+     *
+     * @param args аргументи на командата
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи
@@ -38,7 +54,12 @@ public class CloseCommand extends AbstractCommand {
         System.out.println("Successfully closed " + fileName);
     }
 
-    //Извлича името на файла от пълния път
+    /**
+     * Извлича името на файла от пълния път.
+     *
+     * @param path пълният път до файла
+     * @return само името на файла
+     */
     private String extractFileName(String path) {
         int lastIdx = Math.max(path.lastIndexOf('\\'), path.lastIndexOf('/'));
         return (lastIdx == -1) ? path : path.substring(lastIdx + 1);

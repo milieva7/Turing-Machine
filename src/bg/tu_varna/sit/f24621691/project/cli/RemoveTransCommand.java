@@ -3,14 +3,29 @@ package bg.tu_varna.sit.f24621691.project.cli;
 import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 
+/**
+ * Команда за премахване на преход от конкретна Машина на Тюринг.
+ * Преходът се търси по начално състояние и символ за четене.
+ */
 public class RemoveTransCommand extends AbstractCommand {
     private final MachineManager manager;
 
+    /**
+     * Създава команда за премахване на преход.
+     *
+     * @param manager мениджърът, от който се взима машината
+     */
     public RemoveTransCommand(MachineManager manager) {
         super("removetrans <id> <state> <read>", "Премахва преход по дадено състояние и символ.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата removetrans.
+     * Премахва преход от машина по подадено състояние и символ за четене.
+     *
+     * @param args аргументи на командата
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи

@@ -5,15 +5,32 @@ import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 import bg.tu_varna.sit.f24621691.project.model.Transition;
 
+/**
+ * Команда за добавяне на нов преход към конкретна Машина на Тюринг.
+ * Преходът описва от кое състояние се тръгва, какъв символ се чете,
+ * в кое състояние се преминава, какъв символ се записва и в каква посока се движи главата.
+ */
 public class AddTransCommand extends AbstractCommand {
     private final MachineManager manager;
 
+    /**
+     * Създава команда за добавяне на преход.
+     *
+     * @param manager мениджърът, от който се взима машината
+     */
     public AddTransCommand(MachineManager manager) {
         super("addtrans <id> <q> <read> <q2> <write> <move>",
                 "Добавя нов преход към дадена машина.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата addtrans.
+     * Създава нов преход от подадените аргументи и го добавя към машината.
+     *
+     * @param args аргументи на командата
+     * @throws ConfigurationException ако данните за прехода са невалидни или непълни
+     */
     @Override
     public void execute(String[] args) {
         // Проверка за правилен брой аргументи
@@ -53,7 +70,6 @@ public class AddTransCommand extends AbstractCommand {
             //Защита при счупен/непълен вход
             throw new ConfigurationException("Данните за прехода са непълни или грешни.");
         } catch (Exception e) {
-
             throw new ConfigurationException("Грешка при добавяне на преход: " + e.getMessage());
         }
     }

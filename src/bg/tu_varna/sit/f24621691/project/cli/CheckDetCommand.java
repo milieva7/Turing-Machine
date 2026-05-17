@@ -7,14 +7,31 @@ import bg.tu_varna.sit.f24621691.project.model.Transition;
 import java.util.HashSet;
 import java.util.Set;
 
+/**
+ * Команда за проверка дали конкретна Машина на Тюринг е детерминирана.
+ * Машината е детерминирана, ако няма два прехода със същото начално състояние
+ * и същия символ за четене.
+ */
 public class CheckDetCommand extends AbstractCommand {
     private final MachineManager manager;
 
+    /**
+     * Създава команда за проверка на детерминираност.
+     *
+     * @param manager мениджърът, от който се взима машината
+     */
     public CheckDetCommand(MachineManager manager) {
         super("checkdet <id>", "Проверява дали машината е детерминирана.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата checkdet.
+     * Обхожда всички преходи на машината и проверява дали има повтаряща се двойка
+     * от начално състояние и символ за четене.
+     *
+     * @param args аргументи на командата
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи

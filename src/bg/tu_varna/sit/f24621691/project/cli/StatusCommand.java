@@ -4,14 +4,31 @@ import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 import bg.tu_varna.sit.f24621691.project.model.exceptions.MachineNotInitializedException;
 
+/**
+ * Команда за показване на текущия статус на Машина на Тюринг.
+ * Извежда текущото състояние, позицията на главата и резултата,
+ * ако машината вече е спряла.
+ */
 public class StatusCommand extends AbstractCommand {
     private final MachineManager manager;
 
+    /**
+     * Създава команда за показване на статус.
+     *
+     * @param manager мениджърът, от който се взима машината
+     */
     public StatusCommand(MachineManager manager) {
         super("status <id>", "Показва текущото състояние на изпълнение на дадена машина.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата status.
+     * Показва информация за текущото изпълнение на инициализирана машина.
+     *
+     * @param args аргументи на командата
+     * @throws MachineNotInitializedException ако машината не е инициализирана
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи

@@ -3,14 +3,30 @@ package bg.tu_varna.sit.f24621691.project.cli;
 import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 
+/**
+ * Команда за нулиране на текущото изпълнение на Машина на Тюринг.
+ * Командата премахва текущата лента и текущото състояние,
+ * но не изтрива състоянията, преходите и конфигурацията на машината.
+ */
 public class ResetCommand extends AbstractCommand {
     private final MachineManager manager;
 
+    /**
+     * Създава команда за нулиране на изпълнението.
+     *
+     * @param manager мениджърът, от който се взима машината
+     */
     public ResetCommand(MachineManager manager) {
         super("reset <id>", "Нулира текущото изпълнение на машината.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата reset.
+     * Нулира текущото изпълнение на машина с подадено ID.
+     *
+     * @param args аргументи на командата
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи

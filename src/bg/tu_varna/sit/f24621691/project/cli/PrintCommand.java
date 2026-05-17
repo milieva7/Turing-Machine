@@ -4,14 +4,29 @@ import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 import bg.tu_varna.sit.f24621691.project.model.Transition;
 
+/**
+ * Команда за извеждане на информация за конкретна Машина на Тюринг.
+ * Показва ID, начално състояние, списък със състояния и всички преходи.
+ */
 public class PrintCommand extends AbstractCommand {
     private final MachineManager manager;
 
+    /**
+     * Създава команда за показване на информация за машина.
+     *
+     * @param manager мениджърът, от който се взима търсената машина
+     */
     public PrintCommand(MachineManager manager) {
         super("print <id>", "Извежда информация за машина и нейните преходи.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата print.
+     * Намира машина по ID и извежда информация за нея в конзолата.
+     *
+     * @param args аргументи на командата
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи

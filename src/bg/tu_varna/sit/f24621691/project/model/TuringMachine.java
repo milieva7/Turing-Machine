@@ -7,6 +7,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+/**
+ * Класът представя детерминирана Машина на Тюринг.
+ * Съхранява състояния, азбуки, преходи, начално състояние,
+ * приемащи и отхвърлящи състояния, както и текущата лента при изпълнение.
+ */
 public class TuringMachine {
     private String id;
     private Set<String> states; // Q
@@ -21,6 +26,11 @@ public class TuringMachine {
     private String currentState;
     private boolean haltedNoTransition;
 
+    /**
+     * Създава нова Машина на Тюринг с подадено ID.
+     *
+     * @param id уникален идентификатор на машината
+     */
     public TuringMachine(String id) {
         this.id = id;
         this.states = new HashSet<>();
@@ -31,7 +41,12 @@ public class TuringMachine {
         this.transitions = new ArrayList<>();
     }
 
-    //Добавя ново състояние
+    /**
+     * Добавя ново състояние към машината.
+     *
+     * @param state името на състоянието
+     * @throws InvalidStateException ако състоянието е null или празно
+     */
     public void addState(String state) {
         if (state == null || state.isBlank()) {
             throw new InvalidStateException("Състоянието не може да бъде празно!");
@@ -39,7 +54,12 @@ public class TuringMachine {
         states.add(state);
     }
 
-    //Задава начално състояние
+    /**
+     * Задава началното състояние на машината.
+     *
+     * @param state името на началното състояние
+     * @throws InvalidStateException ако състоянието не съществува в множеството от състояния
+     */
     public void setStartState(String state) {
         if (!states.contains(state)) {
             throw new InvalidStateException("Състоянието '" + state + "' не е дефинирано!");
@@ -47,19 +67,37 @@ public class TuringMachine {
         this.startState = state;
     }
 
-    //Приемащо състояние
+    /**
+     * Добавя приемащо състояние към машината.
+     * Ако състоянието още не съществува, то се добавя и към общото множество от състояния.
+     *
+     * @param state името на приемащото състояние
+     */
     public void addAcceptState(String state) {
         addState(state);
         acceptStates.add(state);
     }
 
-    //Отказно състояние
+    /**
+     * Добавя отхвърлящо състояние към машината.
+     * Ако състоянието още не съществува, то се добавя и към общото множество от състояния.
+     *
+     * @param state името на отхвърлящото състояние
+     */
     public void addRejectState(String state) {
         addState(state);
         rejectStates.add(state);
     }
 
-    //Добавя преход
+    /**
+     * Добавя нов преход към машината.
+     * Методът проверява дали началното и крайното състояние съществуват
+     * и дали няма друг преход със същата двойка от състояние и входен символ.
+     *
+     * @param newTransition преходът, който ще бъде добавен
+     * @throws InvalidStateException ако началното или крайното състояние не съществува
+     * @throws NonDeterministicException ако вече има преход за същото състояние и символ
+     */
     public void addTransition(Transition newTransition) {
 
         // Проверка дали състоянията съществуват
@@ -87,7 +125,12 @@ public class TuringMachine {
         transitions.add(newTransition);
     }
 
-    //Премахва преход
+    /**
+     * Премахва преход по подадено начално състояние и символ за четене.
+     *
+     * @param state началното състояние на прехода
+     * @param symbol символът, който се чете от лентата
+     */
     public void removeTransition(String state, char symbol) {
         List<Transition> remaining = new ArrayList<>();
 
@@ -100,7 +143,13 @@ public class TuringMachine {
         this.transitions = remaining;
     }
 
-    //Инициализация
+    /**
+     * Инициализира машината с входна дума.
+     * Създава нова лента и задава текущото състояние като началното състояние.
+     *
+     * @param input входната дума, която ще бъде поставена върху лентата
+     * @throws InvalidStateException ако няма зададено начално състояние
+     */
     public void init(String input) {
         if (startState == null) {
             throw new InvalidStateException("Няма начално състояние!");
@@ -111,7 +160,13 @@ public class TuringMachine {
         this.haltedNoTransition = false;
     }
 
-    //Една стъпка
+    /**
+     * Изпълнява една стъпка от работата на машината.
+     * Ако има подходящ преход, машината записва символ, мести главата
+     * и сменя текущото състояние. Ако няма преход, машината спира.
+     *
+     * @throws MachineNotInitializedException ако машината не е инициализирана
+     */
     public void step() {
         if (tape == null) {
             throw new MachineNotInitializedException("Машината не е стартирана!");
@@ -139,26 +194,44 @@ public class TuringMachine {
         }
     }
 
-    // Нулира текущото изпълнение на машината
+    /**
+     * Нулира текущото изпълнение на машината.
+     * Не премахва състояния, преходи или крайни състояния.
+     * Нулира само лентата, текущото състояние и флага за липсващ преход.
+     */
     public void reset() {
         this.tape = null;
         this.currentState = null;
         this.haltedNoTransition = false;
     }
 
-    //Проверява дали машината е достигнала крайно състояние
+    /**
+     * Проверява дали машината е достигнала крайно състояние.
+     * Машината спира, ако е в приемащо състояние, в отхвърлящо състояние
+     * или ако няма валиден преход за текущата конфигурация.
+     *
+     * @return true ако машината е спряла, иначе false
+     */
     public boolean isHalted() {
         return acceptStates.contains(currentState)
                 || rejectStates.contains(currentState)
                 || haltedNoTransition;
     }
 
-    //Проверка дали машината е спряла поради липсващ преход
+    /**
+     * Проверява дали машината е спряла поради липсващ преход.
+     *
+     * @return true ако машината е спряла заради липса на преход, иначе false
+     */
     public boolean isHaltedNoTransition() {
         return haltedNoTransition;
     }
 
-    //Форматиране
+    /**
+     * Форматира основната информация за машината и нейните преходи.
+     *
+     * @return текстово представяне на машината във формат, подходящ за преглед
+     */
     public String formatMachine() {
         StringBuilder sb = new StringBuilder();
 
@@ -175,31 +248,78 @@ public class TuringMachine {
         return sb.toString().trim();
     }
 
+    /**
+     * Връща кратко текстово представяне на машината.
+     *
+     * @return текст с ID-то на машината
+     */
     @Override
     public String toString() {
         return "TuringMachine{id='" + id + "'}";
     }
 
+    /**
+     * Връща ID-то на машината.
+     *
+     * @return идентификатор на машината
+     */
     public String getId() { return id; }
+
+    /**
+     * Връща текущото състояние на машината.
+     *
+     * @return текущото състояние
+     */
     public String getCurrentState() { return currentState; }
+
+    /**
+     * Връща текущата лента на машината.
+     *
+     * @return лентата на машината
+     */
     public Tape getTape() { return tape; }
 
+    /**
+     * Връща копие на списъка с преходи.
+     *
+     * @return списък с преходите на машината
+     */
     public List<Transition> getTransitions() {
         return new ArrayList<>(transitions);
     }
 
+    /**
+     * Връща копие на множеството от състояния.
+     *
+     * @return множество със състоянията на машината
+     */
     public Set<String> getStates() {
         return new HashSet<>(states);
     }
 
+    /**
+     * Връща началното състояние на машината.
+     *
+     * @return началното състояние
+     */
     public String getStartState() {
         return startState;
     }
 
+    /**
+     * Връща копие на множеството от приемащи състояния.
+     *
+     * @return множество с приемащите състояния
+     */
     public Set<String> getAcceptStates() {
         return new HashSet<>(acceptStates);
     }
 
+    /**
+     * Връща копие на множеството от отхвърлящи състояния.
+     *
+     * @return множество с отхвърлящите състояния
+     */
     public Set<String> getRejectStates() {
         return new HashSet<>(rejectStates);
     }

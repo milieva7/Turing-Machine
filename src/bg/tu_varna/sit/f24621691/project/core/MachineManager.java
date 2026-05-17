@@ -10,21 +10,30 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/*
- Класът управлява всички заредени Машини на Тюринг в програмата.
- Съхранява ги в списък и позволява достъп до тях чрез уникално ID.
+/**
+ * Класът управлява всички заредени Машини на Тюринг в програмата.
+ * Съхранява машините в Map колекция, като всяка машина се достъпва чрез уникално ID.
+ * Отговаря и за сериализация и десериализация на машините при запис и четене от файл.
  */
 public class MachineManager {
     //Тук пазим машините
     private Map<String, TuringMachine> machines;
 
+    /**
+     * Създава нов мениджър за управление на Машини на Тюринг.
+     * Инициализира празна Map колекция за съхранение на машините.
+     */
     public MachineManager() {
         this.machines = new HashMap<>();
     }
 
-    /*
-      Добавя нова машина в списъка.
-      Проверява дали вече не съществува машина със същото ID.
+    /**
+     * Добавя нова машина в списъка със заредени машини.
+     * Проверява дали подадената машина не е null и дали няма друга машина със същото ID.
+     *
+     * @param machine машината, която ще бъде добавена
+     * @throws IllegalArgumentException ако подадената машина е null
+     * @throws DuplicateMachineException ако вече съществува машина със същото ID
      */
     public void addMachine(TuringMachine machine) {
         if (machine == null) {
@@ -38,7 +47,13 @@ public class MachineManager {
         machines.put(machine.getId(), machine);
     }
 
-    //Намира и връща машина по нейното ID
+    /**
+     * Намира и връща машина по нейното ID.
+     *
+     * @param id идентификаторът на търсената машина
+     * @return машината с подаденото ID
+     * @throws MachineNotFoundException ако няма заредена машина с такова ID
+     */
     public TuringMachine getMachine(String id) {
         if (!machines.containsKey(id)) {
             throw new MachineNotFoundException("Не съществува заредена машина с ID '" + id + "'.");
@@ -47,17 +62,31 @@ public class MachineManager {
         return machines.get(id);
     }
 
-    //Връща списък с всички налични ID-та на заредените машини
+    /**
+     * Връща всички ID-та на заредените машини.
+     *
+     * @return множество с ID-тата на машините
+     */
     public Set<String> getAllMachineIds() {
         return machines.keySet();
     }
 
-    //Проверява дали в момента има заредени машини.
+    /**
+     * Проверява дали има заредени машини.
+     *
+     * @return true ако има поне една заредена машина, иначе false
+     */
     public boolean hasMachines() {
         return !machines.isEmpty();
     }
 
-    //Подготвя всички машини за запис във файл
+    /**
+     * Подготвя всички заредени машини за запис във файл.
+     * Връща списък от редове, които съдържат данните за всяка машина
+     * и разделител "---" между отделните машини.
+     *
+     * @return списък с редове за запис във файл
+     */
     public List<String> getSerializableData() {
         List<String> data = new ArrayList<>();
 
@@ -69,7 +98,15 @@ public class MachineManager {
         return data;
     }
 
-    //Подготвя една конкретна машина за запис във файл
+    /**
+     * Подготвя една конкретна машина за запис във файл.
+     * Машината се намира по нейното ID и се сериализира в същия формат,
+     * който се използва при запис на всички машини.
+     *
+     * @param id идентификаторът на машината
+     * @return списък с редове за запис на конкретната машина
+     * @throws MachineNotFoundException ако няма заредена машина с подаденото ID
+     */
     public List<String> getSerializableDataForMachine(String id) {
         TuringMachine tm = getMachine(id);
 
@@ -80,7 +117,14 @@ public class MachineManager {
         return data;
     }
 
-    //Превръща една машина в редове, подходящи за запис във файл
+    /**
+     * Превръща една машина в списък от редове, подходящи за запис във файл.
+     * Записва ID, преходи, състояния, начално състояние,
+     * приемащи и отхвърлящи състояния.
+     *
+     * @param tm машината, която ще бъде сериализирана
+     * @return списък с редове, представящи машината
+     */
     private List<String> serializeMachine(TuringMachine tm) {
         List<String> data = new ArrayList<>();
 
@@ -115,12 +159,21 @@ public class MachineManager {
         return data;
     }
 
-    //Изчиства всички заредени машини
+    /**
+     * Изчиства всички заредени машини от мениджъра.
+     */
     public void clear() {
         this.machines.clear();
     }
 
-    //Създава машина от редовете, прочетени от файл
+    /**
+     * Създава машина от редове, прочетени от файл, и я добавя в мениджъра.
+     * Методът разпознава редове за ID, преходи, състояния,
+     * начално състояние, приемащи и отхвърлящи състояния.
+     *
+     * @param lines редовете, описващи една машина
+     * @return ID-то на заредената машина или null, ако списъкът е празен
+     */
     public String deserializeAndAdd(List<String> lines) {
         if (lines == null || lines.isEmpty()) {
             return null;
@@ -214,7 +267,13 @@ public class MachineManager {
         return id;
     }
 
-    //Добавя състояния от ред Accept:/Reject: към временен списък
+    /**
+     * Добавя състояния от ред Accept или Reject към временен списък.
+     * Редът се разделя по запетаи.
+     *
+     * @param line редът със състоянията
+     * @param statesList списъкът, в който ще бъдат добавени състоянията
+     */
     private void addStatesToList(String line, List<String> statesList) {
         if (line == null || line.isBlank()) {
             return;
@@ -229,7 +288,12 @@ public class MachineManager {
         }
     }
 
-    //Зарежда всички машини от файл
+    /**
+     * Зарежда всички машини от редове, прочетени от файл.
+     * Използва разделителя "---", за да отдели отделните машини една от друга.
+     *
+     * @param lines всички редове, прочетени от файла
+     */
     public void deserializeAll(List<String> lines) {
         if (lines == null || lines.isEmpty()) {
             return;

@@ -4,17 +4,36 @@ import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 import bg.tu_varna.sit.f24621691.project.model.exceptions.MachineNotInitializedException;
 
+/**
+ * Команда за проследяване на изпълнението на Машина на Тюринг.
+ * Показва всяка стъпка от изпълнението, включително текущото състояние,
+ * съдържанието на лентата и позицията на главата.
+ */
 public class TraceCommand extends AbstractCommand {
     private final MachineManager manager;
 
     //Подразбиращ се лимит, ако потребителят не подаде max=<n>
     private static final int DEFAULT_MAX_STEPS = 1000;
 
+    /**
+     * Създава команда за проследяване на изпълнението.
+     *
+     * @param manager мениджърът, от който се взима машината
+     */
     public TraceCommand(MachineManager manager) {
         super("trace <id> [max=<n>]", "Показва изпълнението на машината стъпка по стъпка.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата trace.
+     * Показва конфигурацията на машината преди изпълнение и след всяка стъпка,
+     * докато машината спре или достигне максималния брой стъпки.
+     *
+     * @param args аргументи на командата
+     * @throws MachineNotInitializedException ако машината не е инициализирана
+     * @throws IllegalArgumentException ако параметърът max е в невалиден формат
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи.
@@ -76,8 +95,14 @@ public class TraceCommand extends AbstractCommand {
         System.out.println("===============================");
     }
 
-    //Показва текущата конфигурация на машината:
-    //номер на стъпката, текущо състояние, съдържание на лентата и позиция на главата
+    /**
+     * Показва текущата конфигурация на машината.
+     * Извежда номер на стъпката, текущо състояние, съдържание на лентата
+     * и маркер за позицията на главата.
+     *
+     * @param tm машината, чиято конфигурация се показва
+     * @param stepNumber номерът на текущата стъпка
+     */
     private void printConfiguration(TuringMachine tm, int stepNumber) {
         String content = tm.getTape().getContent();
         int headPosition = tm.getTape().getHeadPosition();
@@ -95,7 +120,14 @@ public class TraceCommand extends AbstractCommand {
         System.out.println();
     }
 
-    //Взима max=<n> от аргументите, ако е подаден
+    /**
+     * Взима максималния брой стъпки от аргументите на командата.
+     * Ако не е подаден max параметър, връща подразбиращия се лимит.
+     *
+     * @param args аргументите на командата
+     * @return максималният брой стъпки
+     * @throws IllegalArgumentException ако max параметърът е в невалиден формат
+     */
     private int getMaxSteps(String[] args) {
         //Ако няма трети аргумент, връщаме подразбиращия се лимит
         if (args.length < 3) {

@@ -3,17 +3,35 @@ package bg.tu_varna.sit.f24621691.project.cli;
 import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 
+/**
+ * Команда за извеждане на обобщен отчет за изпълнение на Машина на Тюринг.
+ * Командата инициализира машината с входна дума, изпълнява я до спиране
+ * или до достигане на максимален брой стъпки и показва резултатите.
+ */
 public class ReportCommand extends AbstractCommand {
     private final MachineManager manager;
 
     //Подразбиращ се лимит, ако потребителят не подаде max=<n>
     private static final int DEFAULT_MAX_STEPS = 1000;
 
+    /**
+     * Създава команда за обобщен отчет.
+     *
+     * @param manager мениджърът, от който се взима машината
+     */
     public ReportCommand(MachineManager manager) {
         super("report <id> <word> [max=<n>]", "Показва обобщен отчет за изпълнение на машина.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата report.
+     * Стартира машината с подадената входна дума и извежда отчет
+     * за конфигурацията, изпълнените стъпки, лентата и крайния резултат.
+     *
+     * @param args аргументи на командата
+     * @throws IllegalArgumentException ако параметърът max е в невалиден формат
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи.
@@ -84,7 +102,14 @@ public class ReportCommand extends AbstractCommand {
         System.out.println("==================================================");
     }
 
-    //Взима max=<n> от аргументите, ако е подаден
+    /**
+     * Взима максималния брой стъпки от аргументите на командата.
+     * Ако не е подаден max параметър, връща подразбиращия се лимит.
+     *
+     * @param args аргументите на командата
+     * @return максималният брой стъпки
+     * @throws IllegalArgumentException ако max параметърът е в невалиден формат
+     */
     private int getMaxSteps(String[] args) {
         //Ако няма четвърти аргумент, връщаме подразбиращия се лимит
         if (args.length < 4) {

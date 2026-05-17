@@ -3,14 +3,29 @@ package bg.tu_varna.sit.f24621691.project.cli;
 import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 
+/**
+ * Команда за добавяне на отхвърлящо състояние към конкретна Машина на Тюринг.
+ * При достигане на отхвърлящо състояние машината спира и отхвърля входната дума.
+ */
 public class AddRejectCommand extends AbstractCommand {
     private final MachineManager manager;
 
+    /**
+     * Създава команда за добавяне на отхвърлящо състояние.
+     *
+     * @param manager мениджърът, от който се взима машината
+     */
     public AddRejectCommand(MachineManager manager) {
         super("addreject <id> <state>", "Добавя отхвърлящо състояние към дадена машина.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата addreject.
+     * Добавя отхвърлящо състояние към машина с подадено ID.
+     *
+     * @param args аргументи на командата
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи

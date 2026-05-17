@@ -4,14 +4,30 @@ import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.cli.exceptions.ConfigurationException;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 
+/**
+ * Команда за инициализиране на Машина на Тюринг с входна дума.
+ * Създава лента за машината и задава текущото състояние като начално.
+ */
 public class InitCommand extends AbstractCommand {
     private final MachineManager manager;
 
+    /**
+     * Създава команда за инициализация на машина.
+     *
+     * @param manager мениджърът, от който се взима машината
+     */
     public InitCommand(MachineManager manager) {
         super("init <id> <input>", "Инициализира машина с входна дума върху лентата.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата init.
+     * Намира машина по ID и я инициализира с подадената входна дума.
+     *
+     * @param args аргументи на командата
+     * @throws ConfigurationException ако входната дума е празна
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи

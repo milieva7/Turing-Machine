@@ -4,14 +4,30 @@ import bg.tu_varna.sit.f24621691.project.core.MachineManager;
 import bg.tu_varna.sit.f24621691.project.model.TuringMachine;
 import bg.tu_varna.sit.f24621691.project.model.exceptions.MachineNotInitializedException;
 
+/**
+ * Команда за показване на съдържанието на лентата на Машина на Тюринг.
+ * Извежда текущото съдържание на лентата и позицията на главата.
+ */
 public class TapeCommand extends AbstractCommand {
     private final MachineManager manager;
 
+    /**
+     * Създава команда за визуализация на лентата.
+     *
+     * @param manager мениджърът, от който се взима машината
+     */
     public TapeCommand(MachineManager manager) {
         super("tape <id>", "Показва съдържанието на лентата и позицията на главата.");
         this.manager = manager;
     }
 
+    /**
+     * Изпълнява командата tape.
+     * Показва съдържанието на лентата и маркира позицията на главата със символ "^".
+     *
+     * @param args аргументи на командата
+     * @throws MachineNotInitializedException ако машината няма инициализирана лента
+     */
     @Override
     public void execute(String[] args) {
         //Проверка за правилен брой аргументи
